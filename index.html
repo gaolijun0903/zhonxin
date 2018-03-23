@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    <title>中信借记卡申请</title>
+    <link rel="stylesheet" type="text/css" href="css/index.css"/>
+    <script src="lib/flexible.js"></script>
+    
+    <style type="text/css">
+    	
+	</style>
+</head>
+<body>
+	<div id="app" class="appwrapper" v-cloak>	
+		<div class="info-wrapper panel">
+			<ul class="infolist">
+				<li class="panelitem border name">
+					<div class="item-left">姓名</div>
+					<div class="item-right">{{info.name}}</div>
+				</li>
+				<li class="panelitem border identity">
+					<div class="item-left">身份证号</div>
+					<div class="item-right">{{info.identity}}</div>
+					
+				</li>
+				<li class="panelitem border area">
+					<div class="item-left">所在区域</div>
+					<div class="item-right">{{info.area}}</div>
+					
+				</li>
+				<li class="panelitem  address">
+					<div class="item-left">详细地址</div>
+					<div class="item-right">
+						<!--<textarea id="erea" rows="1" cols="28" v-model="info.address" ></textarea>-->
+						<input type="text" name="address" id="address" v-model="info.address" placeholder="请详细到门牌号"/>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="notice">中信银行将为您邮寄卡片，请保证填写地址真实有效</div>
+		<div class="tel-code-wrapper panel">
+			<ul class="tellist">
+				<li class="panelitem border telnum">
+					<div class="item-left">手机号码</div>
+					<div class="item-right">
+						<input type="num" name="telnum" id="telnum" v-model="telnum" placeholder="请填写手机号码"  maxlength="11"/>
+					</div>
+				</li>
+				<li class="panelitem border piccode">
+					<div class="code-left">
+						<input type="number" name="piccode" id="piccode" v-model="piccode" placeholder="图形验证码" maxlength="4"/>
+					</div>
+					<div class="code-right">
+						<span class="changepic">看不清，换一张</span>
+						<img class="imgcode" src="https://market.yongche.com/activity/Webuser/getCaptcha">
+					</div>
+				</li>
+				<li class="panelitem border msgcode">
+					<div class="code-left">
+						<input type="number" name="msgcode" id="msgcode" v-model="msgcode" placeholder="请填写验证码" maxlength="6"/>
+					</div>
+					<div class="code-right">
+						<div class="getcodebtn">获取验证码</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div class="notice">该手机号将作为您的中信银行预留手机号</div>
+		<div class="agreement">
+			<div class="checkboxwrapper">
+				<div class="checkbox"></div>
+			</div>
+			<div class="agreementcontent">
+				同意
+				<a class="agreeitem" href="">《中信银行在线借记卡申请须知》</a>
+				<a class="agreeitem" href="">《中信银行易到联名借记卡申请须知》</a>
+				<a class="agreeitem" href="">《易到用车客户协议》</a>
+				等法律声明及政策
+			</div>
+		</div>
+		<div class="btnwrapper">
+			<div class="btn">提交</div>
+		</div>
+	</div>
+	
+	
+	
+	<script src="lib/vue.min.js"></script>
+	<script src="lib/jquery-2.0.0.min.js"></script>
+	<script src="lib/axios.min.js"></script>
+	<script src="lib/jsonp.js"></script>
+	<script src="js/index.js"></script>
+<script type="text/javascript">
+$.fn.autoTextarea = function (options){  
+    var defaults = {  
+        maxHeight:null,  
+        minHeight:$(this).height(),
+    };  
+    var opts = $.extend({}, defaults, options);  
+ 
+    return $(this).each(function (){  
+        var _this = $(this);  
+        _this.bind('paste cur keydown keyup focus blur', function (){  
+            var height, style = this.style;  
+            style.height = opts.minHeight + 'px';  
+            if(this.scrollHeight > opts.minHeight){  
+                if(opts.maxHeight && this.scrollHeight > opts.maxHeight){  
+                    height = opts.maxHeight;  
+                    style.overflowY = 'scroll';  
+                }else{  
+                    height = this.scrollHeight;  
+                    style.overflowY = 'hidden';  
+                }  
+                style.height = height + 'px';  
+            }  
+        });  
+    });  
+}  
+$(function(){
+    $('textarea').autoTextarea({maxHeight:400});
+});
+</script>
+</body>
+</html>
