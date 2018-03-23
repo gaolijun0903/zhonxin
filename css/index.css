@@ -124,14 +124,14 @@ textarea{
 .tel-code-wrapper .tellist .telitem{
   
 }
-.tel-code-wrapper .tellist .telnum{
+.tel-code-wrapper .tellist .telnumwrapper{
   
 }
 
-.tel-code-wrapper .tellist .msgcode{
+.tel-code-wrapper .tellist .msgcodewrapper{
  position: relative;
 }
-.tel-code-wrapper .tellist .msgcode .getcodebtn{
+.tel-code-wrapper .tellist .msgcodewrapper .getcodebtn{
   position: absolute;
   top: 0.373333rem;
   right: 0.413rem;
@@ -142,10 +142,33 @@ textarea{
   border:1px solid #969696;
   border-radius: 4px;
   color: #969696;
+  font-size: 0.4rem;
 }
 
-.tel-code-wrapper .tellist .piccode{
-  
+.tel-code-wrapper .tellist .msgcodewrapper .getcodebtn.able{
+  background: #FF5252 ;
+  color: #FFFFFF;
+}
+.tel-code-wrapper .tellist .msgcodewrapper .getcodebtn.disable{
+  opacity: 0.7;
+  background: #C8C8C8;
+   color: #FFFFFF;
+}
+
+.tel-code-wrapper .tellist .imgcodewrapper .changeimg{
+  display: block;
+  margin: 0.133333rem auto 0;
+  font-size: 0.32rem;
+  line-height: 0.44rem;
+  color: #1871C4;
+}
+.tel-code-wrapper .tellist .imgcodewrapper .imgcode{
+  width: 2.186667rem;
+  height: 0.853333rem;
+}
+.tel-code-wrapper .tellist .imgcodewrapper .code-right{
+  text-align: right;
+  padding-right: 0.413rem;
 }
 .agreement{
   margin-top: 0.32rem;
