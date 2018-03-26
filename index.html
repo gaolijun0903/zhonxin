@@ -10,12 +10,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="format-detection" content="telephone=no">
     <title>中信借记卡申请</title>
+    <link rel="stylesheet" type="text/css" href="css/LArea.css"/>
     <link rel="stylesheet" type="text/css" href="css/index.css"/>
     <script src="lib/flexible.js"></script>
-    
-    <style type="text/css">
-    	
-	</style>
 </head>
 <body>
 	<div id="app" class="appwrapper" v-cloak>	
@@ -32,14 +29,15 @@
 				</li>
 				<li class="panelitem border area">
 					<div class="item-left">所在区域</div>
-					<div class="item-right">{{info.area}}</div>
-					
+					<div class="item-right">
+						<input id="infoArea" type="text" readonly="" v-model = "area"/>
+					</div>
 				</li>
 				<li class="panelitem  address">
 					<div class="item-left">详细地址</div>
 					<div class="item-right">
 						<!--<textarea id="erea" rows="1" cols="28" v-model="info.address" ></textarea>-->
-						<input type="text" name="address" id="address" v-model="info.address" placeholder="请详细到门牌号"/>
+						<input type="text"  v-model="addressInput" placeholder="请详细到门牌号"/>
 					</div>
 				</li>
 			</ul>
@@ -50,12 +48,12 @@
 				<li class="panelitem border telnumwrapper">
 					<div class="item-left">手机号码</div>
 					<div class="item-right">
-						<input type="tel" v-model="telnum" placeholder="请填写手机号码"  maxlength="11"/>
+						<input type="tel" v-model="telnumInput" placeholder="请填写手机号码"  maxlength="11"/>
 					</div>
 				</li>
-				<li class="panelitem border imgcodewrapper">
+				<li class="panelitem border imgcodewrapper" v-show="needImgcode">
 					<div class="code-left">
-						<input type="number" v-model="imgcodeval" placeholder="图形验证码" maxlength="4"/>
+						<input type="text" v-model="imgcodeInput" placeholder="图形验证码" maxlength="4"/>
 					</div>
 					<div class="code-right " @click="getImgCode">
 						<span class="changeimg">看不清，换一张</span>
@@ -64,12 +62,11 @@
 				</li>
 				<li class="panelitem border msgcodewrapper">
 					<div class="code-left">
-						<input type="number" name="msgcode" id="msgcode" v-model="msgcode" placeholder="请填写验证码" maxlength="6"/>
+						<input type="tel"  v-model="msgcodeInput" placeholder="请填写验证码" maxlength="6"/>
 					</div>
 					<div class="code-right" @click="getmsgcode">
 						<div class="getcodebtn" :class="ablegetmsgcode" v-if="isActive">获取验证码</div>
 						<div class="getcodebtn" v-else="isActive">重新获取<span id="counttime">{{counttime}}</span>s</div>
-						
 					</div>
 				</li>
 			</ul>
@@ -77,23 +74,88 @@
 		<div class="notice">该手机号将作为您的中信银行预留手机号</div>
 		<div class="agreement">
 			<div class="checkboxwrapper">
-				<div class="checkbox"></div>
+				<div class="checkbox" :class="{'checked':ischecked}" @click="togglecheck"></div>
 			</div>
 			<div class="agreementcontent">
 				同意
-				<a class="agreeitem" href="">《中信银行在线借记卡申请须知》</a>
-				<a class="agreeitem" href="">《中信银行易到联名借记卡申请须知》</a>
-				<a class="agreeitem" href="">《易到用车客户协议》</a>
+				<a class="agreeitem" href="#">《中信银行在线借记卡申请须知》</a>
+				<a class="agreeitem" href="#">《中信银行易到联名借记卡申请须知》</a>
+				<a class="agreeitem" href="#">《易到用车客户协议》</a>
 				等法律声明及政策
 			</div>
 		</div>
 		<div class="btnwrapper">
-			<div class="btn">提交</div>
+			<div class="btn" :class="ableSubmit" @click="submitInfo">提交</div>
+		</div>
+		<!--申请结果展示-->
+		<div class="resultwrapper" v-if="resultCode==200">
+			<div class="resultheader">
+				<div class="resulticon">
+					<img src="img/success.png" width="100%" height="100%"/>
+				</div>
+				<div class="resulttitle">申请成功</div>
+				<div class="resultdesc">中信银行已受理您的申请，将在2-3日内为您寄送卡片，请您携带卡片及本人有效证件到中信银行任一网点进行激活。</div>
+			</div>
+			<div class="resultinfo panel">
+				<ul class="infolist">
+					<li class="panelitem border name">
+						<div class="item-left">申请人</div>
+						<div class="item-right">{{resultinfo.name}}</div>
+					</li>
+					<li class="panelitem border identity">
+						<div class="item-left">卡号</div>
+						<div class="item-right">{{resultinfo.cardnum}}</div>
+						
+					</li>
+					<li class="panelitem border address">
+						<div class="item-left">手机号码</div>
+						<div class="item-right">{{resultinfo.telnum}}</div>
+					</li>
+					<li class="panelitem area">
+						<div class="item-left">申请时间</div>
+						<div class="item-right">{{resultinfo.time}}</div>
+					</li>
+				</ul>
+			</div>
+			<div class="banktelwrapper panel" >
+				<ul class="infolist">
+					<li class="panelitem name">
+						<div class="item-left">银行电话</div>
+						<div class="item-right"><a href="tel:95558" class="banktelnum">95558</a></div>
+					</li>
+				</ul>
+			</div>
+			<div class="notice">有问题请致电中信银行客服电话咨询</div>
+		</div>
+		<div class="resultwrapper" v-if="resultCode==201">
+			<div class="resultheader">
+				<div class="resulticon">
+					<img src="img/review.png" width="100%" height="100%"/>
+				</div>
+				<div class="resulttitle">申请审核中</div>
+				<div class="resultsubtile">收到您的申请，中信银行正在审核中，请耐心等待！</div>
+			</div>
+			<div class="banknotice">如有问题请致电中信银行客服电话咨询 <a href="tel:95558" class="banktelnum">95558</a></div>
+			
+		</div>
+		<div class="resultwrapper" v-if="resultCode==202">
+			<div class="resultheader">
+				<div class="resulticon">
+					<img src="img/review.png" width="100%" height="100%"/>
+				</div>
+				<div class="resulttitle">申请失败</div>
+				<div class="resultsubtile">很抱歉，由于您填写的电话号码有误，未能够成功申请！</div>
+			</div>
+			<div class="banknotice">如有问题请致电中信银行客服电话咨询 <a href="tel:95558" class="banktelnum">95558</a></div>
+			<div class="btnwrapper reapplybtn">
+				<div class="btn able"  @click="reapply">重新申请</div>
+			</div>
 		</div>
 	</div>
 	
 	
-	
+	<script src="lib/LArea.min.js"></script>
+	<script src="lib/LAreaData2.js"></script>
 	<script src="lib/vue.min.js"></script>
 	<script src="lib/jquery-2.0.0.min.js"></script>
 	<script src="lib/axios.min.js"></script>
