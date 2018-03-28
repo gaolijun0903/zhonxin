@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="lib/jquery-2.0.0.min.js"></script>
+	</head>
+	<body>
+		<script>
+			var brand_list = [],
+			car_list = {},
+			color_list = {}
+			var colorType = ["其他", "黑色", "白色", "银色", "红色", "蓝色", "黄色", "灰色", "咖啡色", "香槟金", "绿色", "紫色", "粉色"]
+			
+			$.ajax({
+				type:"get",
+				url:"./carbrand.json",
+				success:function(data){
+					console.log(data.ret_msg.result.car_list)
+					var carListObg = data.ret_msg.result.car_list;
+					for(var key in carListObg){
+						for(var i=0; i<carListObg[key].length; i++){
+							var colorkey = carListObg[key][i]['value'];
+							color_list[colorkey] = [];
+							for(var k=0; k<colorType.length;k++){
+								var tempObj = {};
+								tempObj['text'] = colorType[k];
+								tempObj['value'] = colorkey*10 + k;
+								color_list[colorkey].push(tempObj);
+							}
+						}
+					}
+					
+					console.log(color_list)
+				},
+				error:function(){
+					
+				}
+			});
+			
+		</script>
+	</body>
+</html>

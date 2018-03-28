@@ -1,23 +1,26 @@
 new Vue({
   	el: '#app',
 	data:{
-	  	info:{
+	  	info:{  //后台接口返回后赋值
 	  		name:'',
-	  		identity:''
+	  		identity:'',
+	  		telnumBring:''
 	  	},
-	  	area:'',
-	  	addressInput:'',
-	  	telnumInput:null,
+	  	area:null,		//所在区域，根据定位获取后赋值
+	  	addressInput:null,  //输入的详细地址，最多20字
+	  	telnumInput:null,   //输入的手机号，后台接口返回后赋值
 	  	msgcodeInput:null,   //输入的短信验证码
 	  	imgcodeInput:null,  //输入的图形验证码
-	  	imgcodesrc:'https://market.yongche.com/activity/Webuser/getCaptcha?',   //图形验证码地址
+	  	imgcodeSrc:'https://market.yongche.com/activity/Webuser/getCaptcha?',   //图形验证码地址
+	  	needMsgcode:false, //是否需要短信验证码，false-不需要，true-需要，默认手机号是后台带来的信息，不需要短信验证码
+	  	needImgcode:false, //是否需要图形验证码：false-不需要， true-需要 ，默认不需要图形验证码
 	  	counttime:60,  //获取短信验证码倒计时
 	  	isActive:true,  //获取短信验证码，是否倒计时状态，  true-不倒计时，false-倒计时状态
 	  	ableToClick:true,  //获取短信验证码,按钮是否可点击，阻止连续点击
-	  	needImgcode:0, //是否需要图形验证码：0-不需要， 1-需要
-	  	ischecked:false,  //是否选择同意协议
-	  	resultCode:null,
-	  	resultinfo:{
+	  	isAgree:false,  //是否同意各种协议 , 默认是未选中
+	  	noneBankNet:true, //当前定位城市没有银行网点弹窗提示，false-不提示，true-提示
+	  	resultCode:null,  //申请结果状态码 , null-未申请过， 1-申请成功， 2-申请失败， 3-审核中， 默认未申请过
+	  	resultInfo:{
 	  		name:'易到',
 	  		cardnum:'6217730700000008',
 	  		time:'2018-03-07',
@@ -26,47 +29,52 @@ new Vue({
   	},
 	computed:{
 		ablegetmsgcode:function(){  //获取短信验证码按钮状态
-			if(this.checkTelnum()){  //验证手机号合格，按钮变为可点击状态
-                return 'able';
-           }else{
-            	return 'disable';    //手机号不合格，按钮置灰，不可点击
-            }
+			return (this.checkTelnum()) ? 'able' : 'disable';    //手机号不合格，按钮置灰，不可点击
 		},
-		ableSubmit:function(){
+		ableSubmit:function(){  //提交按钮的状态  able--->红色可点击，disable-->灰色不可点击
 			if(this.needImgcode){
-				if(this.checkTelnum() && this.msgcodeInput && this.ischecked && this.imgcodeInput){
-					return 'able'
-				}else{
-					return 'disable'
-				}
+				return (this.checkTelnum() && this.msgcodeInput && this.isAgree && this.imgcodeInput) ? 'able' : 'disable';
 			}else{
-				if(this.checkTelnum() && this.msgcodeInput && this.ischecked){
-					return 'able'
-				}else{
-					return 'disable'
-				}
+				return (this.checkTelnum() && this.msgcodeInput && this.isAgree) ? 'able' : 'disable';
 			}
 		}
 	},
 	mounted: function(){
-	    
+		this.getCurrentPosition();
 	  	this.initData();
+	  	this.initArea();
 	},
 	methods:{
 	  	initData:function (){
 	  		var vm = this;
-	  		console.log('init');
 	  		this.info = {
 		  		name:'happy',
-		  		identity:'130521***3445'
+		  		identity:'130521***3445',
+	  			telnumBring:'16801010040'
 		  	}
-	  		this.getCurrentPosition();
-	  		this.initArea();
+	  		this.telnumInput = this.info.telnumBring;
+	  		/*$.ajax({
+	  			type:"(get)",
+	  			url:"",
+	  			//dataType:'jsonp',
+	  			//xhrFields: {
+                //    withCredentials: true
+                //},
+                //crossDomain: true,
+                success:function(data) {
+                	alert(data)
+                },
+                error:function(err){
+                    alert(err.msg)
+                }
+	  		});*/
+	  		
 		},
 		initArea:function(){//初始化区域插件
 			var area = new LArea();
 			area.init({
                 'trigger': '#infoArea',
+                'trigger1': '#changeCity',  //更换城市用的
                 'keys': {
                     id: 'value',
                     name: 'text'
@@ -77,30 +85,19 @@ new Vue({
 		},
 		getCurrentPosition:function(){  //获取当前位置
 			var vm = this;
-			vm.area ='河北省,石家庄市,长安区';
-			/*if(navigator.geolocation) {
-	            navigator.geolocation.getCurrentPosition(function(position){
-	            	alert(position)
-	            	$.ajax({
-		                url:'https://www.yongche.com/greencar/ajax/get_city.php',
-		                type:'POST',
-		                dataType:"json",
-		                data:{lat:position.coords.latitude,lng:position.coords.longitude},
-		                success:function(data){
-		                    console.log(data);
-		                	vm.area = data.province+data.city
-		                }
-		            })
-	            },function(err){
-	            	alert(err);
-	            });
-	        }else{
-	          	alert("您的浏览器不支持地理位置 O(∩_∩)O~");
-	        }*/
+			var geolocation = new BMap.Geolocation();
+	    	geolocation.getCurrentPosition(function(r){
+	    		if(this.getStatus() == BMAP_STATUS_SUCCESS){
+	    			vm.area = r.address.province+','+r.address.city;
+	    		}
+	    		else {
+	    			alert('failed'+this.getStatus());
+	    		}        
+	    	},{enableHighAccuracy: true})
 		},
 		getImgCode:function(){//获取图片验证码
-			this.imgcodesrc =  'https://market.yongche.com/activity/Webuser/getCaptcha?t='+new Date().getTime();
-			console.log(this.imgcodesrc);
+			this.imgcodeSrc =  'https://market.yongche.com/activity/Webuser/getCaptcha?t='+new Date().getTime();
+			console.log(this.imgcodeSrc);
 		},
 		getmsgcode:function(){//获取短信验证码
 			if(!this.ableToClick){//是否可点击，阻止连续点击
@@ -118,8 +115,8 @@ new Vue({
 			this.sendMsgcode();//发送短信验证码
 		},
 		togglecheck:function(){ //是否同意协议
-			this.ischecked  = !this.ischecked;
-			//console.log(this.ischecked)
+			this.isAgree  = !this.isAgree;
+			//console.log(this.isAgree)
 		},
 		checkTelnum:function(){
 			if(!(/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|6[8])\d{8}$/.test(this.telnumInput))){
@@ -143,27 +140,27 @@ new Vue({
                 success:function(data) {
                     console.log(data);
                     if(data.code==401){//需要图形验证码，图形验证码展示
-                        vm.needImgcode = 1;
+                        vm.needImgcode = true;
                         vm.ableToClick = true; //可以再次请求获取验证码
                     }else if(data.code == 200){ //无需图形验证码，开始短信验证码倒计时
 						vm.msgcodeCountdown();
                     }else if(data.code == 429) {
                     	vm.ableToClick = true;
-                        if(vm.needImgcode==1){
+                        if(vm.needImgcode){
                            vm.getImgCode();
                         }
                         alert('请求次数过多,请稍后重试')
                     }else if(data.code == 400){
                         alert('图形验证码错误');
                         vm.ableToClick = true;
-                        vm.needImgcode = 1;
-                        if(data.isUpdate == 1){
+                        vm.needImgcode = true;
+                        if(data.isUpdate ){
                             vm.getImgCode();
                         }
                     }else if(data.code == 449) {
                         alert('请求太频繁');
                         vm.ableToClick = true;
-                        if(vm.needImgcode==1){
+                        if(vm.needImgcode){
                             vm.getImgCode();
                         }
                     }
@@ -173,8 +170,7 @@ new Vue({
                 }
             })
 		},
-		msgcodeCountdown:function(){
-			console.log('开始倒计时')
+		msgcodeCountdown:function(){//短信验证码发送后，倒计时
 			var vm = this;
 			vm.isActive = false;
             var countdown = setInterval(function(){
@@ -189,10 +185,68 @@ new Vue({
             }, 1000);
 		},
 		submitInfo:function(){
-			console.log(this.area)
+			var allData = {
+				name:this.info.name,
+				identity:this.info.identity,
+				area:this.area,
+				address:this.address,
+				tel:this.telnumInput
+			}
+			console.log(allData)
+			/*$.ajax({
+	  			type:"(get)",
+	  			url:"",
+	  			//dataType:'jsonp',
+	  			//xhrFields: {
+                //    withCredentials: true
+                //},
+                //crossDomain: true,
+                success:function(data) {
+                	alert(data)
+                },
+                error:function(err){
+                    alert(err.msg)
+                }
+	  		});*/
 		},
 		reapply:function(){
 			alert('重新申请')
+		},
+		cancelApply:function(){
+			this.noneBankNet = false;
+		},
+		changeCity:function(){
+			this.noneBankNet = false;
 		}
+		
+  	},
+  	watch:{
+  		area:function(newVal,oldVel){
+  			console.log(newVal+" ---- "+oldVel)
+  			var vm = this;
+  			if(oldVel){
+  				console.log('请求接口，判断是否有银行网点')
+  				setTimeout(function(){
+  					
+  					
+  				},500)
+  			}
+  		},
+  		telnumInput:function(newVal,oldVel){
+  			var vm = this;
+  			if(this.checkTelnum() && oldVel){
+				//console.log(newVal+" ---- "+oldVel)
+  				console.log('请求接口，判断手机号，是否为易到注册的，由此决定是否需要短信验证码')
+  				setTimeout(function(){
+  					if(newVal==='16801010040' || newVal==='16801010041'){
+  						vm.needMsgcode = false; //是易到的，不用短信验证
+  					}else{
+  						vm.needMsgcode = true;
+  					}
+  				},500)
+  			}else if(!this.checkTelnum()){
+  				vm.needMsgcode = true;
+  			}
+  		}
   	}
 })

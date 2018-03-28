@@ -57,10 +57,10 @@
 					</div>
 					<div class="code-right " @click="getImgCode">
 						<span class="changeimg">看不清，换一张</span>
-						<img ref="imgcode" class="imgcode" :src="imgcodesrc">
+						<img ref="imgcode" class="imgcode" :src="imgcodeSrc">
 					</div>
 				</li>
-				<li class="panelitem border msgcodewrapper">
+				<li class="panelitem border msgcodewrapper" v-show="needMsgcode">
 					<div class="code-left">
 						<input type="tel"  v-model="msgcodeInput" placeholder="请填写验证码" maxlength="6"/>
 					</div>
@@ -74,12 +74,12 @@
 		<div class="notice">该手机号将作为您的中信银行预留手机号</div>
 		<div class="agreement">
 			<div class="checkboxwrapper">
-				<div class="checkbox" :class="{'checked':ischecked}" @click="togglecheck"></div>
+				<div class="checkbox" :class="{'checked':isAgree}" @click="togglecheck"></div>
 			</div>
 			<div class="agreementcontent">
 				同意
-				<a class="agreeitem" href="#">《中信银行在线借记卡申请须知》</a>
-				<a class="agreeitem" href="#">《中信银行易到联名借记卡申请须知》</a>
+				<a class="agreeitem" href="https://www.yongche.com/cms/page/zhongxinApplyNotice.html">《中信银行在线借记卡申请须知》</a>
+				<a class="agreeitem" href="https://www.yongche.com/cms/page/zhongxinApplyNotice2.html">《中信银行易到联名借记卡申请须知》</a>
 				<a class="agreeitem" href="#">《易到用车客户协议》</a>
 				等法律声明及政策
 			</div>
@@ -100,20 +100,20 @@
 				<ul class="infolist">
 					<li class="panelitem border name">
 						<div class="item-left">申请人</div>
-						<div class="item-right">{{resultinfo.name}}</div>
+						<div class="item-right">{{resultInfo.name}}</div>
 					</li>
 					<li class="panelitem border identity">
 						<div class="item-left">卡号</div>
-						<div class="item-right">{{resultinfo.cardnum}}</div>
+						<div class="item-right">{{resultInfo.cardnum}}</div>
 						
 					</li>
 					<li class="panelitem border address">
 						<div class="item-left">手机号码</div>
-						<div class="item-right">{{resultinfo.telnum}}</div>
+						<div class="item-right">{{resultInfo.telnum}}</div>
 					</li>
 					<li class="panelitem area">
 						<div class="item-left">申请时间</div>
-						<div class="item-right">{{resultinfo.time}}</div>
+						<div class="item-right">{{resultInfo.time}}</div>
 					</li>
 				</ul>
 			</div>
@@ -141,7 +141,7 @@
 		<div class="resultwrapper" v-if="resultCode==202">
 			<div class="resultheader">
 				<div class="resulticon">
-					<img src="img/review.png" width="100%" height="100%"/>
+					<img src="img/fail.png" width="100%" height="100%"/>
 				</div>
 				<div class="resulttitle">申请失败</div>
 				<div class="resultsubtile">很抱歉，由于您填写的电话号码有误，未能够成功申请！</div>
@@ -151,10 +151,24 @@
 				<div class="btn able"  @click="reapply">重新申请</div>
 			</div>
 		</div>
+		<div class="resultwrapper maskwrapper " v-show="noneBankNet">
+			<div class="maskinner">
+				<div class="masktitle">
+					您当前定位城市无中信银行网点
+				</div>
+				<div class="masksubtitle">
+					如需继续申请中信银行卡可手动选择申请城市
+				</div>
+				<div class="maskbtnwrapper">
+					<div id="changeCity" class="maskbtn btnchange" @click="changeCity">更换城市</div>
+					<div class="maskbtn btncancle" @click="cancelApply">暂不申请</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	
-	
-	<script src="lib/LArea.min.js"></script>
+	<script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=74f1df68a56ecbbdc6be8c1f3b6de523"></script>
+	<script src="lib/LArea-mine.js.js"></script>
 	<script src="lib/LAreaData2.js"></script>
 	<script src="lib/vue.min.js"></script>
 	<script src="lib/jquery-2.0.0.min.js"></script>
@@ -191,5 +205,9 @@ $(function(){
     $('textarea').autoTextarea({maxHeight:400});
 });
 </script>
+
+<!--<script>    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-18761483-4', 'auto');  ga('send', 'pageview');
+</script>-->
 </body>
 </html>

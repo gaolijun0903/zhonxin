@@ -241,3 +241,48 @@ color: #969696;
 .reapplybtn{
   position: absolute;
 }
+
+.maskwrapper{
+  background: rgba(0,0,0,0.75);
+}
+.maskwrapper .maskinner{
+  margin: 4.0rem auto 0;
+  padding-top: 0.533rem;
+  width: 7.733333rem;
+  height: 4.64rem;
+  background: #FFFFFF;
+  border-radius: 0.106667rem;
+  font-size: 0.4rem;
+color: #323232;
+  text-align: center;
+}
+.maskwrapper .maskinner .masktitle{
+  font-size: 0.48rem;
+  line-height: 0.666667rem;
+}
+.maskwrapper .maskinner .masksubtitle{
+  width: 6.973333rem;
+  margin: 0.333333rem auto 0.546667rem;
+}
+
+.maskwrapper .maskinner .maskbtnwrapper{
+display: flex;
+justify-content:space-between;
+padding: 0 0.426667rem;
+}
+.maskwrapper .maskinner .maskbtnwrapper .maskbtn{
+
+width: 3.333333rem;
+height: 1.066667rem;
+line-height: 1.066667rem;
+border-radius: 0.106667rem;
+border:1px solid #C8C8C8;
+}
+.maskwrapper .maskinner .maskbtnwrapper .btnchange{
+
+}
+.maskwrapper .maskinner .maskbtnwrapper .btncancle{
+  border:none;
+  color: #FFFFFF;
+background: #FF5252;
+}
