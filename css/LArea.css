@@ -1,7 +1,8 @@
 
 .gearArea {
     font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-    font-size: 22px;
+    /*font-size: 22px;*/
+	font-size: 0.293333rem;
     background-color: rgba(0, 0, 0, 0.7);
     display: block;
     position: fixed;
@@ -20,7 +21,8 @@
     background-color: #fff;
     color: #000;
     margin: 0;
-    height: 500px;
+    /*height: 500px;*/
+    height: 6.666667rem;
     width: 100%;
     position: absolute;
     left: 0;
@@ -73,7 +75,8 @@
 
 .area_roll>div {
     font-size: 1.6em;
-    height: 450px;
+    /*height: 450px;*/
+    height: 6.0rem;
     float: left;
     background-color: transparent;
     position: relative;
@@ -116,7 +119,8 @@
 
 .area_btn {
     color: #000!important;
-    font-size: 22px;
+    /*font-size: 22px;*/
+    font-size: 0.45rem;
     line-height: 1.6em;
     text-align: center;
     padding: .8em 1em

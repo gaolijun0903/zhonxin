@@ -148,7 +148,7 @@
 			</div>
 			<div class="banknotice">如有问题请致电中信银行客服电话咨询 <a href="tel:95558" class="banktelnum">95558</a></div>
 			<div class="btnwrapper reapplybtn">
-				<div class="btn able"  @click="reapply">重新申请</div>
+				<div class="btn able"  @click="reApply">重新申请</div>
 			</div>
 		</div>
 		<div class="resultwrapper maskwrapper " v-show="noneBankNet">
@@ -160,15 +160,16 @@
 					如需继续申请中信银行卡可手动选择申请城市
 				</div>
 				<div class="maskbtnwrapper">
-					<div id="changeCity" class="maskbtn btnchange" @click="changeCity">更换城市</div>
-					<div class="maskbtn btncancle" @click="cancelApply">暂不申请</div>
+					<div id="changeCity" class="maskbtn btnchange" @click="closeMask">更换城市</div>
+					<div class="maskbtn btncancle" @click="closeMask">暂不申请</div>
 				</div>
 			</div>
 		</div>
 	</div>
 	
+	
 	<script type="text/javascript" src="//api.map.baidu.com/api?v=2.0&ak=74f1df68a56ecbbdc6be8c1f3b6de523"></script>
-	<script src="lib/LArea-mine.js.js"></script>
+	<script src="lib/LArea-mine.js"></script>
 	<script src="lib/LAreaData2.js"></script>
 	<script src="lib/vue.min.js"></script>
 	<script src="lib/jquery-2.0.0.min.js"></script>

@@ -18,7 +18,7 @@ new Vue({
 	  	isActive:true,  //获取短信验证码，是否倒计时状态，  true-不倒计时，false-倒计时状态
 	  	ableToClick:true,  //获取短信验证码,按钮是否可点击，阻止连续点击
 	  	isAgree:false,  //是否同意各种协议 , 默认是未选中
-	  	noneBankNet:true, //当前定位城市没有银行网点弹窗提示，false-不提示，true-提示
+	  	noneBankNet:false, //当前定位城市没有银行网点弹窗提示，false-不提示，true-提示
 	  	resultCode:null,  //申请结果状态码 , null-未申请过， 1-申请成功， 2-申请失败， 3-审核中， 默认未申请过
 	  	resultInfo:{
 	  		name:'易到',
@@ -209,16 +209,13 @@ new Vue({
                 }
 	  		});*/
 		},
-		reapply:function(){
+		reApply:function(){
 			alert('重新申请')
+			this.resultCode = null;
 		},
-		cancelApply:function(){
-			this.noneBankNet = false;
-		},
-		changeCity:function(){
+		closeMask:function(){
 			this.noneBankNet = false;
 		}
-		
   	},
   	watch:{
   		area:function(newVal,oldVel){
@@ -227,7 +224,11 @@ new Vue({
   			if(oldVel){
   				console.log('请求接口，判断是否有银行网点')
   				setTimeout(function(){
-  					
+  					if(newVal=='河北省,石家庄市,藁城市' || newVal==='河北省,邢台市,邢台县'){
+  						vm.noneBankNet = false; //此区域有中信网点
+  					}else{
+  						vm.noneBankNet = true;
+  					}
   					
   				},500)
   			}
@@ -235,7 +236,6 @@ new Vue({
   		telnumInput:function(newVal,oldVel){
   			var vm = this;
   			if(this.checkTelnum() && oldVel){
-				//console.log(newVal+" ---- "+oldVel)
   				console.log('请求接口，判断手机号，是否为易到注册的，由此决定是否需要短信验证码')
   				setTimeout(function(){
   					if(newVal==='16801010040' || newVal==='16801010041'){
