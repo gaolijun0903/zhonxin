@@ -25,7 +25,9 @@ new Vue({
 	  		cardnum:'6217730700000008',
 	  		time:'2018-03-07',
 	  		telnum:'150****2023'
-	  	}
+	  	},
+	  	showToast:false,  //吐司提示框的展示与否  false-不展示，true-展示
+	  	toastMsg:'' //吐司提示信息
   	},
 	computed:{
 		ablegetmsgcode:function(){  //获取短信验证码按钮状态
@@ -33,26 +35,36 @@ new Vue({
 		},
 		ableSubmit:function(){  //提交按钮的状态  able--->红色可点击，disable-->灰色不可点击
 			if(this.needImgcode){
-				return (this.checkTelnum() && this.msgcodeInput && this.isAgree && this.imgcodeInput) ? 'able' : 'disable';
-			}else{
-				return (this.checkTelnum() && this.msgcodeInput && this.isAgree) ? 'able' : 'disable';
+				return (this.checkTelnum() && this.isAgree && this.msgcodeInput && this.imgcodeInput) ? 'able' : 'disable';
 			}
+			if(this.needMsgcode){
+				return (this.checkTelnum() && this.isAgree && this.msgcodeInput ) ? 'able' : 'disable';
+			}
+			return (this.checkTelnum()  && this.isAgree) ? 'able' : 'disable';
 		}
 	},
 	mounted: function(){
 		this.getCurrentPosition();
 	  	this.initData();
-	  	this.initArea();
 	},
 	methods:{
 	  	initData:function (){
+	  		console.log('init')
 	  		var vm = this;
-	  		this.info = {
-		  		name:'happy',
-		  		identity:'130521***3445',
-	  			telnumBring:'16801010040'
-		  	}
-	  		this.telnumInput = this.info.telnumBring;
+	  		setTimeout(function(){
+	  			vm.info = {
+			  		name:'happy',
+			  		identity:'130521***3445',
+		  			telnumBring:'16801010040'
+			  	}
+		  		vm.telnumInput = vm.info.telnumBring;
+		  		//vm.resultCode = 202;
+		  		if(vm.resultCode == null){
+		  			vm.initArea();
+		  		}
+	  			
+	  		},200)
+		  		
 	  		/*$.ajax({
 	  			type:"(get)",
 	  			url:"",
@@ -65,12 +77,12 @@ new Vue({
                 	alert(data)
                 },
                 error:function(err){
-                    alert(err.msg)
+                    vm.showToastFn(err.msg)
                 }
 	  		});*/
 	  		
 		},
-		initArea:function(){//初始化区域插件
+		initArea:function(){  //初始化区域三级联动插件
 			var area = new LArea();
 			area.init({
                 'trigger': '#infoArea',
@@ -91,7 +103,7 @@ new Vue({
 	    			vm.area = r.address.province+','+r.address.city;
 	    		}
 	    		else {
-	    			alert('failed'+this.getStatus());
+	    			vm.showToastFn('failed'+this.getStatus());
 	    		}        
 	    	},{enableHighAccuracy: true})
 		},
@@ -104,11 +116,11 @@ new Vue({
 				return 
 			}
 			if(!this.checkTelnum()){
-				alert('请输入正确的手机号');
+				this.showToastFn('请输入正确的手机号');
 				return false;
 			}
 			if(this.needImgcode && !this.imgcodeInput){  //需要图形验证码,并且图形验证码为空
-				alert('请输入图形验证码');
+				this.showToastFn('请输入图形验证码');
                 return false;
 			}
 			this.ableToClick = false;
@@ -118,11 +130,65 @@ new Vue({
 			this.isAgree  = !this.isAgree;
 			//console.log(this.isAgree)
 		},
-		checkTelnum:function(){
+		checkTelnum:function(){  //检测手机号是否合法
 			if(!(/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|6[8])\d{8}$/.test(this.telnumInput))){
                 return false;
             }
             return true;
+		},
+		checkTelnumYidao:function(tel){ //判断手机号，是否为易到注册的，由此决定是否需要短信验证码
+			var vm = this;
+			setTimeout(function(){
+				if(tel==='16801010040' || tel==='16801010041'){
+					vm.needMsgcode = false; //是易到的，不用短信验证
+				}else{
+					console.log('不是易到注册的，需要短信验证码')
+					vm.needMsgcode = true;
+				}
+			},500)
+			/*$.ajax({
+	  			type:"(get)",
+	  			url:"",
+	  			//dataType:'jsonp',
+	  			//xhrFields: {
+                //    withCredentials: true
+                //},
+                //crossDomain: true,
+                success:function(data) {
+                	alert(data)
+                },
+                error:function(err){
+                    vm.showToastFn(err.msg)
+                }
+	  		});*/
+		},
+		checkBankNet:function(net,callback){  //判断所选区域是否有银行网点
+			var vm = this;
+			setTimeout(function(){
+				if(net=='河北省,石家庄市,藁城市' || net==='河北省,邢台市,邢台县'){
+					vm.noneBankNet = false; //此区域有中信网点
+					if(callback ) callback();
+				}else{
+					console.log('此区域没有银行网点')
+					vm.noneBankNet = true;
+				}
+			},500)
+			
+			/*$.ajax({
+	  			type:"(get)",
+	  			url:"",
+	  			//dataType:'jsonp',
+	  			//xhrFields: {
+                //    withCredentials: true
+                //},
+                //crossDomain: true,
+                success:function(data) {
+                	alert(data)
+                },
+                error:function(err){
+                    vm.showToastFn(err.msg)
+                }
+	  		});*/
 		},
 		sendMsgcode:function(){
 			console.log('发送短信验证码')
@@ -151,14 +217,14 @@ new Vue({
                         }
                         alert('请求次数过多,请稍后重试')
                     }else if(data.code == 400){
-                        alert('图形验证码错误');
+                        vm.showToastFn('图形验证码错误');
                         vm.ableToClick = true;
                         vm.needImgcode = true;
                         if(data.isUpdate ){
                             vm.getImgCode();
                         }
                     }else if(data.code == 449) {
-                        alert('请求太频繁');
+                        vm.showToastFn('请求太频繁');
                         vm.ableToClick = true;
                         if(vm.needImgcode){
                             vm.getImgCode();
@@ -166,7 +232,7 @@ new Vue({
                     }
                 },
                 error:function(err){
-                    alert(err.msg)
+                    vm.showToastFn(err.msg)
                 }
             })
 		},
@@ -185,14 +251,24 @@ new Vue({
             }, 1000);
 		},
 		submitInfo:function(){
+			var vm = this;
 			var allData = {
 				name:this.info.name,
 				identity:this.info.identity,
 				area:this.area,
-				address:this.address,
+				address:this.addressInput,
 				tel:this.telnumInput
 			}
 			console.log(allData)
+			vm.checkBankNet(this.area, function(){
+				console.log('提交给后台')
+				setTimeout(function(){
+					vm.resultCode = 202;
+				},200)
+				
+			});
+			
+			
 			/*$.ajax({
 	  			type:"(get)",
 	  			url:"",
@@ -205,47 +281,40 @@ new Vue({
                 	alert(data)
                 },
                 error:function(err){
-                    alert(err.msg)
+                    vm.showToastFn(err.msg)
                 }
 	  		});*/
 		},
 		reApply:function(){
-			alert('重新申请')
+			console.log('重新申请')
 			this.resultCode = null;
+			this.initData();
 		},
 		closeMask:function(){
 			this.noneBankNet = false;
+		},
+		showToastFn:function(msg){
+			var vm = this;
+			vm.showToast = true;
+     		vm.toastMsg = msg;
+     		setTimeout(function(){
+     			vm.showToast = false;
+     		},2000)
 		}
   	},
   	watch:{
-  		area:function(newVal,oldVel){
-  			console.log(newVal+" ---- "+oldVel)
-  			var vm = this;
+  		area:function(newVal,oldVel){  //监测区域变化， 判断所选区域是否有银行网点
+  			//console.log(newVal+" ---- "+oldVel)
+  			//初始化赋值那次变化，不用判断是否有网点，为提升用户体验
   			if(oldVel){
-  				console.log('请求接口，判断是否有银行网点')
-  				setTimeout(function(){
-  					if(newVal=='河北省,石家庄市,藁城市' || newVal==='河北省,邢台市,邢台县'){
-  						vm.noneBankNet = false; //此区域有中信网点
-  					}else{
-  						vm.noneBankNet = true;
-  					}
-  					
-  				},500)
+  				this.checkBankNet(newVal)
   			}
   		},
-  		telnumInput:function(newVal,oldVel){
-  			var vm = this;
+  		telnumInput:function(newVal,oldVel){  //监测手机号输入变化，判断是否是易到注册的
   			if(this.checkTelnum() && oldVel){
-  				console.log('请求接口，判断手机号，是否为易到注册的，由此决定是否需要短信验证码')
-  				setTimeout(function(){
-  					if(newVal==='16801010040' || newVal==='16801010041'){
-  						vm.needMsgcode = false; //是易到的，不用短信验证
-  					}else{
-  						vm.needMsgcode = true;
-  					}
-  				},500)
-  			}else if(!this.checkTelnum()){
-  				vm.needMsgcode = true;
+  				this.checkTelnumYidao(newVal)
+  			}else if(!this.checkTelnum()){  //只要手机号输入不合法，就展示短信验证码
+  				this.needMsgcode = true;
   			}
   		}
   	}
